@@ -454,6 +454,11 @@ app.get('/event/:shareableLink', async (c) => {
     <body class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 min-h-screen">
         <div class="container mx-auto px-4 py-8">
             <div class="max-w-4xl mx-auto">
+                <div class="flex justify-end mb-4">
+                    <a href="/" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all">
+                        Create Your Own Event
+                    </a>
+                </div>
                 <div id="event-content">
                     <div class="text-center py-12">
                         <div class="text-gray-400 text-lg">Loading event...</div>
@@ -555,6 +560,12 @@ app.get('/event/:shareableLink', async (c) => {
                                 \`).join('')}
                             </div>
                         </div>
+
+                        <div class="mt-8 text-center">
+                            <button onclick="shareEvent()" class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:bg-blue-700 transition-all">
+                                Share This Event
+                            </button>
+                        </div>
                     \`;
 
                     // Setup form handlers
@@ -615,6 +626,15 @@ app.get('/event/:shareableLink', async (c) => {
                 } catch (error) {
                     alert('Failed to submit contribution');
                 }
+            }
+
+            function shareEvent() {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Event link copied to clipboard!');
+                }).catch(() => {
+                    alert('Failed to copy link');
+                });
             }
 
             loadEvent();
