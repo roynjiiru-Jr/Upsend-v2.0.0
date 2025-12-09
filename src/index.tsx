@@ -860,6 +860,12 @@ app.get('/event/:shareableLink', async (c) => {
                                         <span class="text-xs mt-2 text-gray-600">Facebook</span>
                                     </button>
                                     
+                                    <!-- Instagram -->
+                                    <button onclick="shareInstagram()" class="flex flex-col items-center p-3 bg-pink-50 hover:bg-pink-100 rounded-lg transition-colors group">
+                                        <i class="fab fa-instagram text-3xl text-pink-600 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">Instagram</span>
+                                    </button>
+                                    
                                     <!-- Twitter/X -->
                                     <button onclick="shareTwitter()" class="flex flex-col items-center p-3 bg-sky-50 hover:bg-sky-100 rounded-lg transition-colors group">
                                         <i class="fab fa-twitter text-3xl text-sky-600 group-hover:scale-110 transition-transform"></i>
@@ -1005,6 +1011,13 @@ app.get('/event/:shareableLink', async (c) => {
             function shareFacebook() {
                 const url = encodeURIComponent(window.location.href);
                 window.open(\`https://www.facebook.com/sharer/sharer.php?u=\${url}\`, '_blank');
+            }
+
+            function shareInstagram() {
+                // Instagram doesn't have a direct web share URL
+                // Copy link to clipboard and show instructions
+                copyLink();
+                alert('Link copied! Open Instagram app and paste the link in your story or post.');
             }
 
             function shareTwitter() {
