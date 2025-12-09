@@ -1014,10 +1014,10 @@ app.get('/event/:shareableLink', async (c) => {
             }
 
             function shareInstagram() {
-                // Instagram doesn't have a direct web share URL
-                // Copy link to clipboard and show instructions
+                // Open Instagram website - they'll need to post manually
+                window.open('https://www.instagram.com/', '_blank');
+                // Also copy the link for easy pasting
                 copyLink();
-                alert('Link copied! Open Instagram app and paste the link in your story or post.');
             }
 
             function shareTwitter() {
