@@ -821,11 +821,88 @@ app.get('/event/:shareableLink', async (c) => {
                         </div>
 
                         <div class="mt-8 text-center">
-                            <button onclick="shareEvent()" class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:bg-blue-700 transition-all">
-                                Share This Event
+                            <button onclick="openShareModal()" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:shadow-xl transform hover:scale-105 transition-all">
+                                <i class="fas fa-share-alt mr-2"></i>Share This Event
                             </button>
                         </div>
                     \`;
+
+                    // Add share modal to the page
+                    document.body.insertAdjacentHTML('beforeend', \`
+                        <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" onclick="closeShareModal(event)">
+                            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6" onclick="event.stopPropagation()">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-2xl font-bold text-gray-800">Share This Event</h3>
+                                    <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+                                </div>
+                                
+                                <p class="text-gray-600 mb-6">Help spread the word about this event!</p>
+                                
+                                <!-- Copy Link -->
+                                <div class="mb-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                                    <input type="text" id="share-url" value="\${window.location.href}" readonly class="flex-1 bg-transparent text-gray-700 text-sm mr-2 outline-none">
+                                    <button onclick="copyLink()" class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                
+                                <!-- Social Sharing Grid -->
+                                <div class="grid grid-cols-4 gap-3 mb-4">
+                                    <!-- WhatsApp -->
+                                    <button onclick="shareWhatsApp()" class="flex flex-col items-center p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group">
+                                        <i class="fab fa-whatsapp text-3xl text-green-600 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">WhatsApp</span>
+                                    </button>
+                                    
+                                    <!-- Facebook -->
+                                    <button onclick="shareFacebook()" class="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group">
+                                        <i class="fab fa-facebook text-3xl text-blue-600 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">Facebook</span>
+                                    </button>
+                                    
+                                    <!-- Twitter/X -->
+                                    <button onclick="shareTwitter()" class="flex flex-col items-center p-3 bg-sky-50 hover:bg-sky-100 rounded-lg transition-colors group">
+                                        <i class="fab fa-twitter text-3xl text-sky-600 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">Twitter</span>
+                                    </button>
+                                    
+                                    <!-- LinkedIn -->
+                                    <button onclick="shareLinkedIn()" class="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group">
+                                        <i class="fab fa-linkedin text-3xl text-blue-700 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">LinkedIn</span>
+                                    </button>
+                                    
+                                    <!-- Email -->
+                                    <button onclick="shareEmail()" class="flex flex-col items-center p-3 bg-red-50 hover:bg-red-100 rounded-lg transition-colors group">
+                                        <i class="fas fa-envelope text-3xl text-red-600 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">Email</span>
+                                    </button>
+                                    
+                                    <!-- Telegram -->
+                                    <button onclick="shareTelegram()" class="flex flex-col items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group">
+                                        <i class="fab fa-telegram text-3xl text-blue-500 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">Telegram</span>
+                                    </button>
+                                    
+                                    <!-- SMS -->
+                                    <button onclick="shareSMS()" class="flex flex-col items-center p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group">
+                                        <i class="fas fa-sms text-3xl text-green-600 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">SMS</span>
+                                    </button>
+                                    
+                                    <!-- More Options -->
+                                    <button onclick="shareNative()" class="flex flex-col items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group">
+                                        <i class="fas fa-share-nodes text-3xl text-gray-600 group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-xs mt-2 text-gray-600">More</span>
+                                    </button>
+                                </div>
+                                
+                                <div id="copy-success" class="text-center text-green-600 font-medium mt-4" style="display:none;">
+                                    <i class="fas fa-check-circle mr-1"></i>Link copied to clipboard!
+                                </div>
+                            </div>
+                        </div>
+                    \`);
 
                     // Setup form handlers
                     document.getElementById('message-form').addEventListener('submit', submitMessage);
@@ -887,16 +964,105 @@ app.get('/event/:shareableLink', async (c) => {
                 }
             }
 
-            function shareEvent() {
-                const url = window.location.href;
+            // Share modal functions
+            let eventTitle = '';
+            let eventDescription = '';
+
+            function openShareModal() {
+                document.getElementById('share-modal').classList.remove('hidden');
+                document.getElementById('share-modal').classList.add('flex');
+            }
+
+            function closeShareModal(event) {
+                if (!event || event.target.id === 'share-modal') {
+                    document.getElementById('share-modal').classList.add('hidden');
+                    document.getElementById('share-modal').classList.remove('flex');
+                    document.getElementById('copy-success').style.display = 'none';
+                }
+            }
+
+            function copyLink() {
+                const url = document.getElementById('share-url').value;
                 navigator.clipboard.writeText(url).then(() => {
-                    alert('Event link copied to clipboard!');
+                    document.getElementById('copy-success').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('copy-success').style.display = 'none';
+                    }, 3000);
                 }).catch(() => {
                     alert('Failed to copy link');
                 });
             }
 
+            function getShareText() {
+                return \`Check out this event: \${eventTitle || 'Event'}\${eventDescription ? ' - ' + eventDescription : ''}\`;
+            }
+
+            function shareWhatsApp() {
+                const text = encodeURIComponent(getShareText() + '\\n' + window.location.href);
+                window.open(\`https://wa.me/?text=\${text}\`, '_blank');
+            }
+
+            function shareFacebook() {
+                const url = encodeURIComponent(window.location.href);
+                window.open(\`https://www.facebook.com/sharer/sharer.php?u=\${url}\`, '_blank');
+            }
+
+            function shareTwitter() {
+                const text = encodeURIComponent(getShareText());
+                const url = encodeURIComponent(window.location.href);
+                window.open(\`https://twitter.com/intent/tweet?text=\${text}&url=\${url}\`, '_blank');
+            }
+
+            function shareLinkedIn() {
+                const url = encodeURIComponent(window.location.href);
+                window.open(\`https://www.linkedin.com/sharing/share-offsite/?url=\${url}\`, '_blank');
+            }
+
+            function shareEmail() {
+                const subject = encodeURIComponent(eventTitle || 'Check out this event!');
+                const body = encodeURIComponent(getShareText() + '\\n\\n' + window.location.href);
+                window.location.href = \`mailto:?subject=\${subject}&body=\${body}\`;
+            }
+
+            function shareTelegram() {
+                const text = encodeURIComponent(getShareText());
+                const url = encodeURIComponent(window.location.href);
+                window.open(\`https://t.me/share/url?url=\${url}&text=\${text}\`, '_blank');
+            }
+
+            function shareSMS() {
+                const text = encodeURIComponent(getShareText() + ' ' + window.location.href);
+                window.location.href = \`sms:?body=\${text}\`;
+            }
+
+            function shareNative() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: eventTitle || 'Event',
+                        text: getShareText(),
+                        url: window.location.href
+                    }).catch(() => {
+                        // User cancelled or error occurred
+                    });
+                } else {
+                    copyLink();
+                }
+            }
+
+            // Store event data for sharing
+            async function loadEventForSharing() {
+                try {
+                    const response = await axios.get('/api/events/' + shareableLink);
+                    const { event } = response.data;
+                    eventTitle = event.title;
+                    eventDescription = event.description;
+                } catch (error) {
+                    console.error('Failed to load event data:', error);
+                }
+            }
+
             loadEvent();
+            loadEventForSharing();
         </script>
     </body>
     </html>
