@@ -51,12 +51,21 @@ export interface Session {
   created_at: number;
 }
 
+// Event Image types
+export interface EventImage {
+  url: string;
+  key: string;
+  is_cover: number;
+  display_order: number;
+}
+
 // API Request/Response types
 export interface CreateEventRequest {
   title: string;
   description?: string;
   event_date: string;
   cover_image?: string;
+  images?: EventImage[];
 }
 
 export interface CreateMessageRequest {

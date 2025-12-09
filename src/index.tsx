@@ -906,28 +906,43 @@ app.get('/event/:shareableLink', async (c) => {
                     // Build image slideshow HTML
                     let imagesHTML = '';
                     if (event.images && event.images.length > 0) {
+                        // Build image slides
+                        let imageSlides = '';
+                        for (let i = 0; i < event.images.length; i++) {
+                            imageSlides += '<img src="' + event.images[i].image_url + '" class="w-full h-full object-cover flex-shrink-0" alt="Event image ' + (i + 1) + '">';
+                        }
+                        
+                        // Build dot indicators
+                        let dotIndicators = '';
+                        for (let i = 0; i < event.images.length; i++) {
+                            dotIndicators += '<button onclick="goToSlide(' + i + ')" class="slide-dot w-2 h-2 rounded-full bg-white ' + (i === 0 ? 'bg-opacity-100' : 'bg-opacity-50') + ' transition-all"></button>';
+                        }
+                        
+                        // Build navigation HTML if multiple images
+                        let navigationHTML = '';
+                        if (event.images.length > 1) {
+                            navigationHTML = \`
+                                <!-- Navigation Arrows -->
+                                <button onclick="previousSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <!-- Slide Indicators -->
+                                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                    \` + dotIndicators + \`
+                                </div>
+                            \`;
+                        }
+                        
+                        // Build slideshow HTML
                         imagesHTML = \`
                             <div class="relative w-full h-64 md:h-96 bg-gray-900 overflow-hidden">
                                 <div id="slideshow-container" class="flex transition-transform duration-500 ease-out h-full">
-                                    \${event.images.map((img, idx) => \`
-                                        <img src="\${img.image_url}" class="w-full h-full object-cover flex-shrink-0" alt="Event image \${idx + 1}">
-                                    \`).join('')}
+                                    \` + imageSlides + \`
                                 </div>
-                                \${event.images.length > 1 ? \`
-                                    <!-- Navigation Arrows -->
-                                    <button onclick="previousSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
-                                        <i class="fas fa-chevron-left"></i>
-                                    </button>
-                                    <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </button>
-                                    <!-- Slide Indicators -->
-                                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                                        \${event.images.map((_, idx) => \`
-                                            <button onclick="goToSlide(\${idx})" class="slide-dot w-2 h-2 rounded-full bg-white \${idx === 0 ? 'bg-opacity-100' : 'bg-opacity-50'} transition-all"></button>
-                                        \`).join('')}
-                                    </div>
-                                \` : ''}
+                                \` + navigationHTML + \`
                             </div>
                         \`;
                     } else if (event.cover_image) {
