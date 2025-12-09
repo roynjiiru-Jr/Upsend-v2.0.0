@@ -94,6 +94,14 @@ events.get('/:shareableLink', async (c) => {
       ORDER BY created_at DESC
     `).bind(event.id).all();
 
+    // Get event images
+    const imagesResult = await db.prepare(`
+      SELECT image_url, image_key, is_cover, display_order
+      FROM event_images
+      WHERE event_id = ?
+      ORDER BY display_order ASC
+    `).bind(event.id).all();
+
     return c.json({
       event: {
         id: event.id,
@@ -101,7 +109,8 @@ events.get('/:shareableLink', async (c) => {
         description: event.description,
         event_date: event.event_date,
         cover_image: event.cover_image,
-        creator_name: event.creator_name
+        creator_name: event.creator_name,
+        images: imagesResult.results || []
       },
       messages: messagesResult.results || []
     });

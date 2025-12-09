@@ -420,6 +420,9 @@ app.get('/create-event', (c) => {
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <!-- Cropper.js for image cropping -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     </head>
     <body class="bg-gray-50 min-h-screen">
         <nav class="bg-white shadow-sm">
@@ -481,6 +484,87 @@ app.get('/create-event', (c) => {
             </div>
         </div>
 
+        <!-- Crop Modal -->
+        <div id="crop-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4" style="display:none;">
+            <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold text-gray-800">Crop & Adjust Image</h3>
+                        <button onclick="closeCropModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-2xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Cropper Container -->
+                    <div class="mb-4">
+                        <img id="crop-image" style="max-width: 100%; display: block;">
+                    </div>
+                    
+                    <!-- Crop Controls -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <button onclick="cropper.rotate(-45)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                            <i class="fas fa-undo mr-2"></i>Rotate Left
+                        </button>
+                        <button onclick="cropper.rotate(45)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                            <i class="fas fa-redo mr-2"></i>Rotate Right
+                        </button>
+                        <button onclick="cropper.scaleX(-cropper.getData().scaleX || -1)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                            <i class="fas fa-arrows-alt-h mr-2"></i>Flip H
+                        </button>
+                        <button onclick="cropper.scaleY(-cropper.getData().scaleY || -1)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                            <i class="fas fa-arrows-alt-v mr-2"></i>Flip V
+                        </button>
+                    </div>
+                    
+                    <!-- Aspect Ratio Options -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Aspect Ratio</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="cropper.setAspectRatio(NaN)" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg">
+                                Free
+                            </button>
+                            <button onclick="cropper.setAspectRatio(1)" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg">
+                                1:1
+                            </button>
+                            <button onclick="cropper.setAspectRatio(16/9)" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg">
+                                16:9
+                            </button>
+                            <button onclick="cropper.setAspectRatio(4/3)" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg">
+                                4:3
+                            </button>
+                            <button onclick="cropper.setAspectRatio(3/2)" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg">
+                                3:2
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Zoom Control -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">Zoom</label>
+                        <div class="flex items-center gap-3">
+                            <button onclick="cropper.zoom(-0.1)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <input type="range" min="-1" max="1" step="0.01" value="0" oninput="cropper.zoom(this.value - this.dataset.lastValue); this.dataset.lastValue = this.value;" data-last-value="0" class="flex-1">
+                            <button onclick="cropper.zoom(0.1)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3">
+                        <button onclick="closeCropModal()" class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-semibold">
+                            Cancel
+                        </button>
+                        <button onclick="applyCrop()" class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:shadow-lg">
+                            Apply Crop
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
             axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('session_token');
 
@@ -516,6 +600,10 @@ app.get('/create-event', (c) => {
                 handleFiles(files);
             });
 
+            let currentCroppingFile = null;
+            let currentCroppingIndex = -1;
+            let cropper = null;
+
             async function handleFiles(files) {
                 for (const file of files) {
                     if (selectedFiles.length >= MAX_FILES) {
@@ -528,13 +616,90 @@ app.get('/create-event', (c) => {
                         continue;
                     }
 
-                    // Compress and resize image
-                    const compressedFile = await compressImage(file);
-                    selectedFiles.push(compressedFile);
-                    displayImagePreview(compressedFile, selectedFiles.length - 1);
+                    // Open crop modal for each image
+                    await openCropModal(file, selectedFiles.length);
                 }
 
                 document.getElementById('images-grid').style.display = selectedFiles.length > 0 ? 'grid' : 'none';
+            }
+
+            function openCropModal(file, index) {
+                return new Promise((resolve) => {
+                    currentCroppingFile = file;
+                    currentCroppingIndex = index;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const cropImage = document.getElementById('crop-image');
+                        cropImage.src = e.target.result;
+                        
+                        document.getElementById('crop-modal').style.display = 'flex';
+                        
+                        // Destroy previous cropper instance
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        
+                        // Initialize Cropper.js
+                        cropper = new Cropper(cropImage, {
+                            viewMode: 1,
+                            dragMode: 'move',
+                            aspectRatio: NaN,
+                            autoCropArea: 1,
+                            restore: false,
+                            guides: true,
+                            center: true,
+                            highlight: true,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            toggleDragModeOnDblclick: false,
+                        });
+                        
+                        // Store resolve function for later use
+                        window.cropResolve = resolve;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function closeCropModal() {
+                document.getElementById('crop-modal').style.display = 'none';
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                }
+                if (window.cropResolve) {
+                    window.cropResolve();
+                }
+            }
+
+            async function applyCrop() {
+                if (!cropper) return;
+                
+                // Get cropped canvas
+                const canvas = cropper.getCroppedCanvas({
+                    maxWidth: 1920,
+                    maxHeight: 1920,
+                    fillColor: '#fff',
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+                
+                // Convert to blob and compress
+                canvas.toBlob(async (blob) => {
+                    // Create file from blob
+                    const croppedFile = new File([blob], currentCroppingFile.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now(),
+                    });
+                    
+                    // Compress the cropped image
+                    const compressedFile = await compressImage(croppedFile);
+                    selectedFiles.push(compressedFile);
+                    displayImagePreview(compressedFile, selectedFiles.length - 1);
+                    
+                    closeCropModal();
+                }, 'image/jpeg', 0.85);
             }
 
             async function compressImage(file) {
@@ -738,13 +903,42 @@ app.get('/event/:shareableLink', async (c) => {
 
                     document.title = event.title + ' - Upsend';
 
+                    // Build image slideshow HTML
+                    let imagesHTML = '';
+                    if (event.images && event.images.length > 0) {
+                        imagesHTML = \`
+                            <div class="relative w-full h-64 md:h-96 bg-gray-900 overflow-hidden">
+                                <div id="slideshow-container" class="flex transition-transform duration-500 ease-out h-full">
+                                    \${event.images.map((img, idx) => \`
+                                        <img src="\${img.image_url}" class="w-full h-full object-cover flex-shrink-0" alt="Event image \${idx + 1}">
+                                    \`).join('')}
+                                </div>
+                                \${event.images.length > 1 ? \`
+                                    <!-- Navigation Arrows -->
+                                    <button onclick="previousSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                    <!-- Slide Indicators -->
+                                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                        \${event.images.map((_, idx) => \`
+                                            <button onclick="goToSlide(\${idx})" class="slide-dot w-2 h-2 rounded-full bg-white \${idx === 0 ? 'bg-opacity-100' : 'bg-opacity-50'} transition-all"></button>
+                                        \`).join('')}
+                                    </div>
+                                \` : ''}
+                            </div>
+                        \`;
+                    } else if (event.cover_image) {
+                        imagesHTML = \`<img src="\${event.cover_image}" class="w-full h-64 object-cover">\`;
+                    } else {
+                        imagesHTML = \`<div class="w-full h-64 bg-gradient-to-br from-purple-400 to-pink-400"></div>\`;
+                    }
+
                     document.getElementById('event-content').innerHTML = \`
                         <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
-                            \${event.cover_image ? \`
-                                <img src="\${event.cover_image}" class="w-full h-64 object-cover">
-                            \` : \`
-                                <div class="w-full h-64 bg-gradient-to-br from-purple-400 to-pink-400"></div>
-                            \`}
+                            \${imagesHTML}
                             <div class="p-8">
                                 <h1 class="text-4xl font-bold text-gray-800 mb-2">\${event.title}</h1>
                                 <p class="text-gray-600 mb-4">
@@ -1074,8 +1268,81 @@ app.get('/event/:shareableLink', async (c) => {
                 }
             }
 
+            // Slideshow functionality
+            let currentSlide = 0;
+            let totalSlides = 0;
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            function initializeSlideshow() {
+                const container = document.getElementById('slideshow-container');
+                if (!container) return;
+                
+                totalSlides = container.children.length;
+                
+                // Add touch/swipe support for mobile
+                container.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                });
+                
+                container.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                });
+            }
+
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                if (touchEndX < touchStartX - swipeThreshold) {
+                    // Swipe left - next slide
+                    nextSlide();
+                }
+                if (touchEndX > touchStartX + swipeThreshold) {
+                    // Swipe right - previous slide
+                    previousSlide();
+                }
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateSlideshow();
+            }
+
+            function previousSlide() {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateSlideshow();
+            }
+
+            function goToSlide(index) {
+                currentSlide = index;
+                updateSlideshow();
+            }
+
+            function updateSlideshow() {
+                const container = document.getElementById('slideshow-container');
+                if (!container) return;
+                
+                const offset = -currentSlide * 100;
+                container.style.transform = \`translateX(\${offset}%)\`;
+                
+                // Update dot indicators
+                const dots = document.querySelectorAll('.slide-dot');
+                dots.forEach((dot, idx) => {
+                    if (idx === currentSlide) {
+                        dot.classList.remove('bg-opacity-50');
+                        dot.classList.add('bg-opacity-100');
+                    } else {
+                        dot.classList.remove('bg-opacity-100');
+                        dot.classList.add('bg-opacity-50');
+                    }
+                });
+            }
+
             loadEvent();
             loadEventForSharing();
+            
+            // Initialize slideshow after event loads
+            setTimeout(initializeSlideshow, 500);
         </script>
     </body>
     </html>
