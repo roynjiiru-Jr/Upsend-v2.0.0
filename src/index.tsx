@@ -1422,18 +1422,18 @@ app.get('/event-details/:eventId', (c) => {
                                 </button>
                             </div>
                             
-                            <div class="grid grid-cols-3 gap-4 mb-8">
-                                <div class="bg-white rounded-lg shadow p-6 text-center">
-                                    <div class="text-3xl font-bold text-purple-600">\${messages.length}</div>
-                                    <div class="text-gray-600 mt-2">Messages</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                                <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center">
+                                    <div class="text-2xl sm:text-3xl font-bold text-purple-600">\${messages.length}</div>
+                                    <div class="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">Messages</div>
                                 </div>
-                                <div class="bg-white rounded-lg shadow p-6 text-center">
-                                    <div class="text-3xl font-bold text-pink-600">\${contributions.length}</div>
-                                    <div class="text-gray-600 mt-2">Contributions</div>
+                                <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center">
+                                    <div class="text-2xl sm:text-3xl font-bold text-pink-600">\${contributions.length}</div>
+                                    <div class="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">Contributions</div>
                                 </div>
-                                <div class="bg-white rounded-lg shadow p-6 text-center">
-                                    <div class="text-3xl font-bold text-green-600">$\${parseFloat(total_contributions).toFixed(2)}</div>
-                                    <div class="text-gray-600 mt-2">Total Amount</div>
+                                <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center">
+                                    <div class="text-2xl sm:text-3xl font-bold text-green-600">$\${parseFloat(total_contributions).toFixed(2)}</div>
+                                    <div class="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2 whitespace-nowrap overflow-hidden text-ellipsis">Total Amount</div>
                                 </div>
                             </div>
                         </div>
