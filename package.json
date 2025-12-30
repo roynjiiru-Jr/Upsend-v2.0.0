@@ -5,6 +5,7 @@
     "dev": "vite",
     "dev:sandbox": "wrangler pages dev dist --d1=upsend-production --r2=IMAGES --local --ip 0.0.0.0 --port 3000",
     "build": "vite build",
+    "start": "node server.js",
     "preview": "wrangler pages dev dist --d1=upsend-production --local",
     "deploy": "npm run build && wrangler pages deploy dist --project-name upsend",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
@@ -15,9 +16,11 @@
     "clean-port": "fuser -k 3000/tcp 2>/dev/null || true"
   },
   "dependencies": {
+    "better-sqlite3": "^12.5.0",
     "hono": "^4.10.7"
   },
   "devDependencies": {
+    "@hono/node-server": "^1.19.7",
     "@hono/vite-build": "^1.2.0",
     "@hono/vite-dev-server": "^0.18.2",
     "vite": "^6.3.5",

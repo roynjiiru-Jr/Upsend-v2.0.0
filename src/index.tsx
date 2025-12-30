@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { serveStatic } from 'hono/cloudflare-workers';
 import type { Bindings } from './types';
 
 // Import routes
@@ -13,9 +12,6 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 // Enable CORS
 app.use('/api/*', cors());
-
-// Serve static files
-app.use('/static/*', serveStatic({ root: './public' }));
 
 // API routes
 app.route('/api/auth', auth);
