@@ -10,13 +10,14 @@
     {
       "binding": "DB",
       "database_name": "upsend-production",
-      "database_id": "will-be-filled-on-production"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "IMAGES",
-      "bucket_name": "upsend-images"
+      "database_id": "ca4c05ab-246c-4f1c-9a31-8fc3bb3b2fc4"
     }
   ]
+  // Temporarily disabled R2 - enable R2 in Cloudflare Dashboard first
+  // "r2_buckets": [
+  //   {
+  //     "binding": "IMAGES",
+  //     "bucket_name": "upsend-images"
+  //   }
+  // ]
 }
