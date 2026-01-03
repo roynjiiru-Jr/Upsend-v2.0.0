@@ -4,8 +4,10 @@ A full-stack web application for creating beautiful event pages to collect messa
 
 ## 🌐 Live URLs
 
-- **Production URL**: https://3000-iq0e39r6vo8zty1vg7jfx-dfc00ec5.sandbox.novita.ai
-- **GitHub**: (To be deployed)
+- **Production**: https://upsend.pro
+- **WWW**: https://www.upsend.pro
+- **Cloudflare Pages**: https://upsend.pages.dev
+- **GitHub Repository**: https://github.com/roynjiiru-Jr/Upsend-v2.0.0
 
 ## ✨ Features
 
@@ -320,9 +322,13 @@ Set these in Cloudflare Dashboard:
 
 ## 📊 Current Status
 
-**Deployment**: ✅ Active (Development)
-**Last Updated**: December 2, 2025
-**Version**: 1.0.0 MVP
+**Production**: ✅ Live at https://upsend.pro
+**Custom Domain**: ✅ Active with SSL
+**Deployment Platform**: Cloudflare Pages
+**Database**: Cloudflare D1 (Production)
+**Storage**: Cloudflare R2 (Active)
+**Last Updated**: December 31, 2025
+**Version**: 2.0.0
 
 ## 🤝 Contributing
 
