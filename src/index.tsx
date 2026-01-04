@@ -1178,6 +1178,11 @@ app.get('/event/:shareableLink', async (c) => {
                     // Setup form handlers
                     document.getElementById('message-form').addEventListener('submit', submitMessage);
                     document.getElementById('contribution-form').addEventListener('submit', submitContribution);
+                    
+                    // Initialize slideshow after content is loaded
+                    if (typeof window.initSlideshow === 'function') {
+                        setTimeout(window.initSlideshow, 100);
+                    }
                 } catch (error) {
                     document.getElementById('event-content').innerHTML = \`
                         <div class="text-center py-12">

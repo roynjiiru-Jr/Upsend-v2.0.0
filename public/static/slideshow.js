@@ -84,11 +84,5 @@ function updateSlideshowDisplay() {
     });
 }
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(initSlideshow, 500);
-    });
-} else {
-    setTimeout(initSlideshow, 500);
-}
+// Expose init function globally so it can be called after content loads
+window.initSlideshow = initSlideshow;
