@@ -970,7 +970,7 @@ app.get('/event/:shareableLink', async (c) => {
                         // Build dot indicators
                         let dotIndicators = '';
                         for (let i = 0; i < event.images.length; i++) {
-                            dotIndicators += '<button onclick="goToSlide(' + i + ')" class="slide-dot w-2 h-2 rounded-full bg-white ' + (i === 0 ? 'bg-opacity-100' : 'bg-opacity-50') + ' transition-all"></button>';
+                            dotIndicators += '<button data-slide-index="' + i + '" class="slide-dot w-2 h-2 rounded-full bg-white ' + (i === 0 ? 'bg-opacity-100' : 'bg-opacity-50') + ' transition-all"></button>';
                         }
                         
                         // Build navigation HTML if multiple images
@@ -978,14 +978,14 @@ app.get('/event/:shareableLink', async (c) => {
                         if (event.images.length > 1) {
                             navigationHTML = \`
                                 <!-- Navigation Arrows -->
-                                <button onclick="previousSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
+                                <button id="prev-slide-btn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
-                                <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
+                                <button id="next-slide-btn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                                 <!-- Slide Indicators -->
-                                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                <div id="slide-indicators" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                                     \` + dotIndicators + \`
                                 </div>
                             \`;
@@ -1350,6 +1350,24 @@ app.get('/event/:shareableLink', async (c) => {
                 
                 totalSlides = container.children.length;
                 
+                // Attach event listeners to navigation buttons
+                const prevBtn = document.getElementById('prev-slide-btn');
+                const nextBtn = document.getElementById('next-slide-btn');
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', previousSlide);
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', nextSlide);
+                }
+                
+                // Attach event listeners to dot indicators
+                const dots = document.querySelectorAll('.slide-dot');
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => goToSlide(index));
+                });
+                
                 // Add touch/swipe support for mobile
                 container.addEventListener('touchstart', (e) => {
                     touchStartX = e.changedTouches[0].screenX;
@@ -1387,11 +1405,6 @@ app.get('/event/:shareableLink', async (c) => {
                 currentSlide = index;
                 updateSlideshow();
             }
-
-            // Make functions globally accessible for onclick handlers
-            window.nextSlide = nextSlide;
-            window.previousSlide = previousSlide;
-            window.goToSlide = goToSlide;
 
             function updateSlideshow() {
                 const container = document.getElementById('slideshow-container');
