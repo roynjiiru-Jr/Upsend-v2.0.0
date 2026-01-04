@@ -1388,6 +1388,11 @@ app.get('/event/:shareableLink', async (c) => {
                 updateSlideshow();
             }
 
+            // Make functions globally accessible for onclick handlers
+            window.nextSlide = nextSlide;
+            window.previousSlide = previousSlide;
+            window.goToSlide = goToSlide;
+
             function updateSlideshow() {
                 const container = document.getElementById('slideshow-container');
                 if (!container) return;
