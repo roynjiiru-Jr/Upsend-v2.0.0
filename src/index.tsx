@@ -929,6 +929,7 @@ app.get('/event/:shareableLink', async (c) => {
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <script src="/static/slideshow.js"></script>
     </head>
     <body class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 min-h-screen">
         <div class="container mx-auto px-4 py-8">
@@ -1338,99 +1339,8 @@ app.get('/event/:shareableLink', async (c) => {
                 }
             }
 
-            // Slideshow functionality
-            let currentSlide = 0;
-            let totalSlides = 0;
-            let touchStartX = 0;
-            let touchEndX = 0;
-
-            function initializeSlideshow() {
-                const container = document.getElementById('slideshow-container');
-                if (!container) return;
-                
-                totalSlides = container.children.length;
-                
-                // Attach event listeners to navigation buttons
-                const prevBtn = document.getElementById('prev-slide-btn');
-                const nextBtn = document.getElementById('next-slide-btn');
-                
-                if (prevBtn) {
-                    prevBtn.addEventListener('click', previousSlide);
-                }
-                
-                if (nextBtn) {
-                    nextBtn.addEventListener('click', nextSlide);
-                }
-                
-                // Attach event listeners to dot indicators
-                const dots = document.querySelectorAll('.slide-dot');
-                dots.forEach((dot, index) => {
-                    dot.addEventListener('click', () => goToSlide(index));
-                });
-                
-                // Add touch/swipe support for mobile
-                container.addEventListener('touchstart', (e) => {
-                    touchStartX = e.changedTouches[0].screenX;
-                });
-                
-                container.addEventListener('touchend', (e) => {
-                    touchEndX = e.changedTouches[0].screenX;
-                    handleSwipe();
-                });
-            }
-
-            function handleSwipe() {
-                const swipeThreshold = 50;
-                if (touchEndX < touchStartX - swipeThreshold) {
-                    // Swipe left - next slide
-                    nextSlide();
-                }
-                if (touchEndX > touchStartX + swipeThreshold) {
-                    // Swipe right - previous slide
-                    previousSlide();
-                }
-            }
-
-            function nextSlide() {
-                currentSlide = (currentSlide + 1) % totalSlides;
-                updateSlideshow();
-            }
-
-            function previousSlide() {
-                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-                updateSlideshow();
-            }
-
-            function goToSlide(index) {
-                currentSlide = index;
-                updateSlideshow();
-            }
-
-            function updateSlideshow() {
-                const container = document.getElementById('slideshow-container');
-                if (!container) return;
-                
-                const offset = -currentSlide * 100;
-                container.style.transform = \`translateX(\${offset}%)\`;
-                
-                // Update dot indicators
-                const dots = document.querySelectorAll('.slide-dot');
-                dots.forEach((dot, idx) => {
-                    if (idx === currentSlide) {
-                        dot.classList.remove('bg-opacity-50');
-                        dot.classList.add('bg-opacity-100');
-                    } else {
-                        dot.classList.remove('bg-opacity-100');
-                        dot.classList.add('bg-opacity-50');
-                    }
-                });
-            }
-
             loadEvent();
             loadEventForSharing();
-            
-            // Initialize slideshow after event loads
-            setTimeout(initializeSlideshow, 500);
         </script>
     </body>
     </html>
