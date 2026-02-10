@@ -418,7 +418,7 @@ app.get('/dashboard', (c) => {
                             </p>
                             <div class="flex justify-between text-sm text-gray-600 mb-4">
                                 <span><i class="far fa-comment mr-1"></i>\${event.message_count || 0} messages</span>
-                                <span><i class="fas fa-dollar-sign mr-1"></i>\${parseFloat(event.total_contributions || 0).toFixed(2)}</span>
+                                <span>KES \${parseFloat(event.total_contributions || 0).toFixed(2)}</span>
                             </div>
                             <div class="flex gap-2">
                                 <a href="/event-details/\${event.id}" class="flex-1 px-4 py-2 bg-purple-600 text-white text-center rounded-lg hover:bg-purple-700 transition-colors text-sm">
@@ -1072,8 +1072,8 @@ app.get('/event/:shareableLink', async (c) => {
                                     <div class="mb-4">
                                         <label class="block text-gray-700 font-medium mb-2">Amount *</label>
                                         <div class="relative">
-                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
-                                            <input type="number" id="amount" step="0.01" min="0.01" class="w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:border-transparent" placeholder="0.00" required>
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm">KES</span>
+                                            <input type="number" id="amount" step="0.01" min="0.01" class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:border-transparent" placeholder="0.00" required>
                                         </div>
                                     </div>
                                     <button type="submit" class="w-full bg-pink-600 text-white font-semibold py-3 rounded-lg hover:bg-pink-700 transition-colors">
@@ -1438,7 +1438,7 @@ app.get('/event-details/:eventId', (c) => {
                                     <div class="text-xs sm:text-base text-gray-600 mt-1 sm:mt-2">Contributions</div>
                                 </div>
                                 <div class="bg-white rounded-lg shadow p-3 sm:p-6 text-center">
-                                    <div class="text-lg sm:text-3xl font-bold text-green-600 break-all">$\${parseFloat(total_contributions).toFixed(2)}</div>
+                                    <div class="text-lg sm:text-3xl font-bold text-green-600 break-all">KES \${parseFloat(total_contributions).toFixed(2)}</div>
                                     <div class="text-xs sm:text-base text-gray-600 mt-1 sm:mt-2">Total Amount</div>
                                 </div>
                             </div>
@@ -1475,7 +1475,7 @@ app.get('/event-details/:eventId', (c) => {
                                                 <p class="font-semibold text-gray-800">\${cont.contributor_name || 'Anonymous'}</p>
                                                 <p class="text-xs text-gray-500">\${new Date(cont.created_at * 1000).toLocaleString()}</p>
                                             </div>
-                                            <div class="text-xl font-bold text-green-600">$\${parseFloat(cont.amount).toFixed(2)}</div>
+                                            <div class="text-xl font-bold text-green-600">KES \${parseFloat(cont.amount).toFixed(2)}</div>
                                         </div>
                                     \`).join('')}
                                 </div>
