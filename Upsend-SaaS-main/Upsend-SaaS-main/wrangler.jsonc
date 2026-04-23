@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "upsend",
+  "compatibility_date": "2025-12-02",
+  "pages_build_output_dir": "./dist",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "upsend-production",
+      "database_id": "ca4c05ab-246c-4f1c-9a31-8fc3bb3b2fc4"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "upsend-images"
+    }
+  ]
+}
